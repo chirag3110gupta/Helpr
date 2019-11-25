@@ -8,6 +8,7 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -19,7 +20,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.speech.RecognizerIntent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.Locale;
+
 import android.telephony.SmsManager;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -27,20 +46,19 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-
+    private String message = "";
     private final int REQ_CODE = 100;
     TextView textView;
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
+    private FusedLocationProviderClient fusedLocationClient;
+    private double lat = 0.0, lon = 0.0;
     Button sendBtn;
-    EditText txtphoneNo;
-    EditText txtMessage;
-    String phoneNo;
-    String message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         textView = findViewById(R.id.text);
         ImageButton speak = findViewById(R.id.voiceButton);
         speak.setOnClickListener(new View.OnClickListener() {
@@ -60,27 +78,37 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        sendBtn = (Button) findViewById(R.id.policeButton);
+        sendBtn = findViewById(R.id.policeButton);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 sendSMSMessage();
             }
         });
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            lat = location.getLatitude();
+                            lon = location.getLongitude();
+                        }
+
+                    }
+                });
+        checkIntPermission();
+        checkLocPermission();
+        checkSmsPermission();
     }
     protected void sendSMSMessage() {
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.SEND_SMS)) {
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.SEND_SMS},
-                        MY_PERMISSIONS_REQUEST_SEND_SMS);
-            }
-        }
+        String s = " 2178198438";
+        Uri uri = Uri.parse("smsto:" + s);
+        Intent it = new Intent(Intent.ACTION_SENDTO, uri);
+        message += "    latitude: " + lat + "     longitude: " + lon;
+        it.putExtra("sms_body", message);
+        startActivity(it);
     }
 
     @Override
@@ -90,7 +118,12 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage("+18477678856", null, "hello", null, null);
+                    smsManager.sendTextMessage("8477678856", null, "hello", null, null);
+//                    String s = " 8477678856";
+//                    Uri uri = Uri.parse("smsto:" + s);
+//                    Intent it = new Intent(Intent.ACTION_SENDTO, uri);
+//                    it.putExtra("sms_body", "Here you can set the SMS text to be sent");
+//                    startActivity(it);
                     Toast.makeText(getApplicationContext(), "SMS sent.",
                             Toast.LENGTH_LONG).show();
                 } else {
@@ -111,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     textView.setText(result.get(0).toString());
+                    message = result.get(0).toString();
                     if (result.get(0).toString().contains("start app")) {
                         String s = result.get(0).toString().substring(9);
                         s = s.toLowerCase();
@@ -146,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(webIntent);
                     }
                     if (result.get(0).toString().contains("search")) {
-                        String s = result.get(0).toString().substring(5);
+                        String s = result.get(0).toString().substring(6);
                         s = s.toLowerCase();
                         try {
                             String escapedQuery = URLEncoder.encode(s, "UTF-8");
@@ -163,6 +197,63 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             }
+        }
+    }
+    public void checkIntPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.INTERNET)) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.INTERNET},
+                        1);
+                checkIntPermission();
+            } else {
+                return;
+                // Permission has already been granted
+
+            }
+        }
+    }
+    public void checkSmsPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.SEND_SMS)) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        1);
+                checkSmsPermission();
+            } else {
+                return;
+                // Permission has already been granted
+
+            }
+        }
+    }
+    public void checkLocPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+            checkLocPermission();
+        } else {
+            return;
+            // Permission has already been granted
+
         }
     }
 }
