@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
     private FusedLocationProviderClient fusedLocationClient;
     private double lat = 0.0, lon = 0.0;
-    Button sendBtn;
+    Button sendBtn, send2Btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +79,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         sendBtn = findViewById(R.id.policeButton);
-
+        send2Btn = findViewById(R.id.fireButton);
+        final Intent intent = new Intent(this, MapsActivity.class);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 sendSMSMessage();
+            }
+        });
+        send2Btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                sendSMSMessage();
+            }
+        });
+        TextView helpr = findViewById(R.id.title);
+        helpr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(), MapsActivity.class);
+                startActivity(intent);
             }
         });
         fusedLocationClient.getLastLocation()
@@ -103,10 +117,9 @@ public class MainActivity extends AppCompatActivity {
     }
     protected void sendSMSMessage() {
 
-        String s = " 2178198438";
+        String s = " 8477678856";
         Uri uri = Uri.parse("smsto:" + s);
         Intent it = new Intent(Intent.ACTION_SENDTO, uri);
-        message += "    latitude: " + lat + "     longitude: " + lon;
         it.putExtra("sms_body", message);
         startActivity(it);
     }
@@ -145,6 +158,19 @@ public class MainActivity extends AppCompatActivity {
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     textView.setText(result.get(0).toString());
                     message = result.get(0).toString();
+                    fusedLocationClient.getLastLocation()
+                            .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                                @Override
+                                public void onSuccess(Location location) {
+                                    // Got last known location. In some rare situations this can be null.
+                                    if (location != null) {
+                                        lat = location.getLatitude();
+                                        lon = location.getLongitude();
+                                    }
+
+                                }
+                            });
+                    message += "    latitude: " + lat + "     longitude: " + lon;
                     if (result.get(0).toString().contains("start app")) {
                         String s = result.get(0).toString().substring(9);
                         s = s.toLowerCase();
@@ -248,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
             // Should we show an explanation?
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    1);
+                    2);
             checkLocPermission();
         } else {
             return;
