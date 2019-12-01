@@ -36,7 +36,4 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:15.0.1'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
     implementation 'com.google.maps.android:android-maps-utils-sdk-v3-compat:0.1'
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }

@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
         });
         sendBtn = findViewById(R.id.policeButton);
         send2Btn = findViewById(R.id.fireButton);
-        final Intent intent = new Intent(this, MapsActivity.class);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 sendSMSMessage();
@@ -108,10 +107,8 @@ public class MainActivity extends AppCompatActivity {
                             lat = location.getLatitude();
                             lon = location.getLongitude();
                         }
-
                     }
                 });
-        checkIntPermission();
         checkLocPermission();
         checkSmsPermission();
     }
