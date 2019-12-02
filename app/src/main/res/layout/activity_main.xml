@@ -95,8 +95,8 @@
 
     <ImageButton
         android:id="@+id/voiceButton"
-        android:layout_width="216dp"
-        android:layout_height="211dp"
+        android:layout_width="155dp"
+        android:layout_height="167dp"
         android:layout_marginLeft="100dp"
         android:layout_marginRight="100dp"
         android:adjustViewBounds="true"
@@ -109,6 +109,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text"
         app:layout_constraintVertical_bias="0.421"
-        app:srcCompat="@android:drawable/presence_audio_busy" />
+        app:srcCompat="@drawable/mic" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
