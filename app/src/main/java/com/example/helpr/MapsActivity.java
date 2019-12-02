@@ -1,23 +1,29 @@
 package com.example.helpr;
 
-import androidx.fragment.app.FragmentActivity;
-
+import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
+import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.Random;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -61,11 +67,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             // Add a marker in Sydney and move the camera
                             LatLng me = new LatLng(location.getLatitude(), location.getLongitude());
                             mMap.addMarker(new MarkerOptions().position(me).title("Your current location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me, 10));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me, 15));
+                            for (int i = 0; i < 2500; i++) {
+
+                                Random random = new Random();
+                                double lat = 39.5 +  ((double) random.nextInt(100000)/100000);
+                                double lon = -87.75 - ((double) random.nextInt(100000)/100000);
+                                LatLng me2 = new LatLng(lat, lon);
+                                if (i < 1700) {
+                                    mMap.addMarker(new MarkerOptions().position(me2).title("Police officer").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                                } else {
+                                    mMap.addMarker(new MarkerOptions().position(me2).title("Fire Engine").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                                }
+                            }
                         }
                     }
                 });
+
     }
-
 }
-

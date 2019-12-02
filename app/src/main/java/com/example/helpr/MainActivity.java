@@ -8,6 +8,8 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,7 +30,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import android.telephony.SmsManager;
@@ -167,7 +172,23 @@ public class MainActivity extends AppCompatActivity {
 
                                 }
                             });
-                    message += "    latitude: " + lat + "     longitude: " + lon;
+                    Geocoder geocoder;
+                    List<Address> addresses;
+                    geocoder = new Geocoder(this, Locale.getDefault());
+                    try {
+                        addresses = geocoder.getFromLocation(lat, lon, 1);
+                    } catch(Exception e) {
+                        break;
+                    }
+                     // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+                    String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                    String city = addresses.get(0).getLocality();
+                    String state = addresses.get(0).getAdminArea();
+                    String country = addresses.get(0).getCountryName();
+                    String postalCode = addresses.get(0).getPostalCode();
+                    String knownName = addresses.get(0).getFeatureName(); // Only if
+                    message += "    latitude: " + lat + "     longitude: " + lon + "      address " + address + " " + city + " " + state;
                     if (result.get(0).toString().contains("start app")) {
                         String s = result.get(0).toString().substring(9);
                         s = s.toLowerCase();
